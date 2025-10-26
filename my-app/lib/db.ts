@@ -2,7 +2,6 @@
 import mysql from "mysql2/promise";
 
 declare global {
-    // eslint-disable-next-line no-var
     var __MYSQL_POOL__: mysql.Pool | undefined;
   }
   
@@ -12,7 +11,7 @@ declare global {
       port: Number(process.env.DB_PORT || 3306),
       user: process.env.DB_USER!,
       password: process.env.DB_PASSWORD!,
-      database: process.env.DB_NAME!,     // DB must already exist
+      database: process.env.DB_NAME!,     
       waitForConnections: true,
       connectionLimit: 10,
       connectTimeout: 60_000,
@@ -28,7 +27,6 @@ declare global {
   }
 
 export async function initializeSchema() {
-  // 1) ensure database exists (no default DB here)
   const root = await getPool().getConnection();
   try {
     await root.query(
@@ -39,7 +37,6 @@ export async function initializeSchema() {
     await root.release();
   }
 
-  // 2) ensure tables exist (now connect with default DB)
   const conn = await getPool().getConnection();
   try {
     await conn.query(`

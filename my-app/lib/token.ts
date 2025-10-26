@@ -1,7 +1,6 @@
 import { randomBytes } from "crypto";
 
 export function makeConfirmToken() {
-  // 32 bytes -> base64url (43 chars), URL-safe
   return randomBytes(32).toString("base64url");
 }
 

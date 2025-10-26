@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Shared schema for client and server validation
 export const subscriberSchema = z.object({
   fullName: z.string()
     .min(1, 'Full name is required')
@@ -11,12 +10,12 @@ export const subscriberSchema = z.object({
     .max(255, 'Email must be less than 255 characters')
     .toLowerCase()
     .trim(),
-  company: z.string().optional(), // Honeypot field
+  company: z.string().optional(), 
 }).strict();
 
 export type SubscriberInput = z.infer<typeof subscriberSchema>;
 
-// Response schema for GET /api/subscribers
+
 export const subscriberResponseSchema = z.object({
   exists: z.boolean(),
   fullName: z.string().optional(),

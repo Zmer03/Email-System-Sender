@@ -9,7 +9,7 @@ import { randomUUID } from "crypto";
 await initializeSchema();
 
 
-// POST /api/subscribers - Create or update subscriber
+// Create or update subscriber
 export async function POST(request: NextRequest) {
   const requestId = randomUUID();
 
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
       const token = makeConfirmToken();
       const hours = ttlHours();
 
-      // Upsert + set token only if not confirmed yet
       await conn.execute(
         `INSERT INTO subscribers (email, full_name, confirm_token, confirm_expires)
          VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL ? HOUR))
@@ -39,7 +38,6 @@ export async function POST(request: NextRequest) {
         [email, fullName, token, hours]
       );
 
-      // Get current state after upsert
       const [rows] = await conn.execute(
         `SELECT confirmed_at, confirm_token, confirm_expires FROM subscribers WHERE email = ? LIMIT 1`,
         [email]
@@ -56,7 +54,6 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Otherwise send the link using whatever token the row holds now
       await sendConfirmationLinkEmail(email, fullName, row?.confirm_token || token, requestId);
 
       return NextResponse.json(
@@ -74,7 +71,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/subscribers?email=<email> - Check if subscriber exists
+// Check if subscriber exists
 export async function GET(request: NextRequest) {
   const requestId = generateRequestId();
   
@@ -89,7 +86,6 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Validate email format
     const emailValidation = subscriberSchema.shape.email.safeParse(email);
     if (!emailValidation.success) {
       return NextResponse.json(
@@ -106,7 +102,6 @@ export async function GET(request: NextRequest) {
         [email]
       );
       
-      // Validate response schema
       const validatedResponse = subscriberResponseSchema.parse(rows);
       
       console.log(`Subscriber lookup successful for ${email}`);
