@@ -118,13 +118,16 @@ Checks if a subscriber exists.
 
 ### subscribers table
 ```sql
-CREATE TABLE subscribers (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  full_name VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_email (email)
+CREATE TABLE IF NOT EXISTS subscribers (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(254) NOT NULL,
+  full_name VARCHAR(200) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  confirmed_at TIMESTAMP NULL,
+  confirm_token CHAR(43) NULL,
+  confirm_expires TIMESTAMP NULL,
+  UNIQUE KEY uq_email (email),
+  UNIQUE KEY uq_confirm_token (confirm_token)
 );
 ```
 
